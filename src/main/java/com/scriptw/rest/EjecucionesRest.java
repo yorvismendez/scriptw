@@ -26,36 +26,36 @@ import org.springframework.web.bind.annotation.RestController;
  * @author USRSIS0173
  */
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)//seguridad
-@RequestMapping(path = "/api/ejecuciones")//Simplifica la ruta de los end points hijos
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(path = "/api/ejecuciones")
 public class EjecucionesRest {
 
     @Autowired
     private EjecucionesService ejecucionesService;
     
-    //metodo para ingresar una nueva ejecucion
+    
     @PostMapping("/insertareje")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity insertar(@RequestBody InsertarejRequest insertarejRequest) {
 
-        //creamos los dos objetos 
+        
         Ejecuciones ejecuciones = new Ejecuciones();
 
-        //llenamos los objetos con los valores de la clase request
+        
         ejecuciones.setDescripcion(insertarejRequest.getDescripcion());
         ejecuciones.setIdUsuario(insertarejRequest.getId_usuario());
         ejecuciones.setIdScript(insertarejRequest.getId_script());      
         
         Date now =java.sql.Timestamp.valueOf(LocalDateTime.now()); 
         ejecuciones.setFecha(now);
-        //guardamos la ejecucion y el resultado lo guardamos en la variable para usarla mas abajo
+    
         Ejecuciones ejecucionguardada = ejecucionesService.save(ejecuciones);
 
         return ResponseEntity.ok(ejecucionguardada);        
     }
     
     
-   //Consulta las ejecuciones paginadas
+   
     @GetMapping("/consultar")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Page<Ejecuciones> concultarejecuciones(Pageable pageable){

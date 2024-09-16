@@ -22,21 +22,21 @@ import org.springframework.web.bind.annotation.RestController;
  * @author yorvi
  */
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)//seguridad 
-@RequestMapping(path = "/api/users")//simplifica la ruta de los end points hijos
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(path = "/api/users")
 public class UsersRest {
     
     @Autowired 
     private UsersService usersService;
     
-    //consulta todos los usuarios
+   
     @GetMapping("/consultar")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity consult(){
         return ResponseEntity.ok(usersService.findAll());
     }
     
-    //consulta todos los usuarios activos
+    
     @GetMapping("/consulact")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity consultact(){
@@ -49,19 +49,19 @@ public class UsersRest {
        
         Users user = new Users();
         
-        user.setIduser(guardarUserRequest.getIduser());//para editar
+        user.setIduser(guardarUserRequest.getIduser());
         user.setUsername(guardarUserRequest.getUsername());
         user.setName(guardarUserRequest.getName());
         user.setPassword(guardarUserRequest.getPassword());
         user.setEnabled(guardarUserRequest.isEnabled());
-        user.setAdmin(guardarUserRequest.isAdmin());//para los admin
+        user.setAdmin(guardarUserRequest.isAdmin());
         
         Users userguardado = usersService.save(user);
         
         return ResponseEntity.ok(userguardado);
     }
     
-    //consulta usuarios por nombre de usuario
+    
     @GetMapping("/consname")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consulName(String username){

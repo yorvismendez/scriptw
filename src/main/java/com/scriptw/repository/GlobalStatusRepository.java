@@ -19,14 +19,14 @@ public interface GlobalStatusRepository extends JpaRepository<GlobalStatus, Inte
 
     Optional<GlobalStatus> findByCodigo(int codigo);
     
-    @Modifying//esta anotacion se usa para indicar que el metodo no va a recibir ninguna respuesta
+    @Modifyingesta 
     @Query(
             value= "UPDATE global_status SET status=:status WHERE id_destino=:iddestino",
             nativeQuery = true            
     )
     public void updateGstatus(@Param("status") int status, @Param("iddestino") Integer iddestino);
     
-    @Modifying//esta anotacion se usa para indicar que el metodo no va a recibir ninguna respuesta
+    @Modifying
     @Query(
             value= "UPDATE destino SET status=:status WHERE iddestino=:iddestino",
             nativeQuery = true            
@@ -35,7 +35,7 @@ public interface GlobalStatusRepository extends JpaRepository<GlobalStatus, Inte
     
     
     
-    @Modifying//esta anotacion se usa para indicar que el metodo no va a recibir ninguna respuesta
+    @Modifying
     @Query(
             value= "UPDATE global_status SET status=:status, id_destino=:iddestino WHERE id_farmacia=:idfarmacia",
             nativeQuery = true            

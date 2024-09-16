@@ -33,8 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author USRSIS0173
  */
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)//seguridad
-@RequestMapping(path = "/api/globalstatus")//simplifica la ruta de los end points hijos
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(path = "/api/globalstatus")
 public class GlobalStatusRest {
 
     @Autowired
@@ -43,17 +43,13 @@ public class GlobalStatusRest {
     @Autowired
     private DestinoService destinoService;
     
-    @GetMapping("/consultar")//consulta el status por farmacia
+    @GetMapping("/consultar")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GlobalStatus> consultarporcodigo(GlobalStatus globalStatus) {
 
         var farmacia = globalStatusService.findByCodigo(globalStatus.getCodigo()).orElse(null);
-
-        //fecha y hora sin formato
         var time = new Date();
-
         farmacia.setUltmConexion(time);
-        //actualizamos la fecha 
         globalStatusService.save(farmacia);
 
         return ResponseEntity.ok(farmacia);
@@ -68,154 +64,95 @@ public class GlobalStatusRest {
     }
     
 
-    @PostMapping("/generar")//end ponit que recibe la respuesta de la consulta y crea el excel
+    @PostMapping("/generar")
     @PreAuthorize("hasRole('ADMIN')")
     public int respuesta(@RequestParam(value = "iddestino") int iddestino, int idfarm,@RequestBody String respuestajson) throws Exception {
 
-        //combertimos el json en string ya que asi lo trabaja mejor la libreria de apose
         String json = respuestajson;
         
-        //combertimos la varible iddestino que es int a string para poder usarla en el nombre del archivo
         String iddestinostr = Integer.toString(iddestino);
 
-        //este codigo crea un archivo json con la variable del json
-        // Crear un objeto FileWriter con el nombre del archivo
 
-        /*FileWriter file = new FileWriter("data/" + iddestinostr + ".json");
-
-        // Escribir el contenido de la variable json en el archivo
-        file.write(data);
-
-        // Cerrar el objeto FileWriter
-        file.close();*/
-        // Lea el archivo JSON de origen
-        //String str = new String(Files.readAllBytes(Paths.get("data/" + iddestinostr + ".json")));
-
-        // Crear objeto de libro de trabajo vacío
         Workbook workbook = new Workbook();
-        // Obtenga las celdas de la primera hoja de trabajo llamando al método get
         Cells cells = workbook.getWorksheets().get(0).getCells();
-        // Establezca JsonLayoutOptions que represente las opciones del tipo de diseño json.
         JsonLayoutOptions importOptions = new JsonLayoutOptions();
-        // Invoque este método setConvertNumericOrDate para establecer un valor que indique si la cadena en json se convierte en numérica o en fecha.
         importOptions.setConvertNumericOrDate(true);
-        // Llame al método setArrayAsTable y establezca su valor si desea procesar Array como tabla.
         importOptions.setArrayAsTable(true);
-        // El método setIgnoreArrayTitle indica si ignorar el título si la matriz es una propiedad del objeto.
         importOptions.setIgnoreArrayTitle(true);
-        // Invoque el método setIgnoreObjectTitle para ignorar el título si el objeto es una propiedad del objeto.
         importOptions.setIgnoreObjectTitle(true);
-        // Llame a este método importData para convertir JSON en una cadena
-        JsonUtility.importData(json, cells, 0, 0, importOptions);     
-        // Guarde el libro de trabajo usando las opciones de guardado.
-        //desarrollo
+        JsonUtility.importData(json, cells, 0, 0, importOptions);
         workbook.save("C:/angular/script_wizard/src/assets/data/" + iddestinostr + ".xlsx");
         
-        //produccion COBECA IIS
-        //workbook.save("P:/assets/data/" + iddestinostr + ".xlsx");
-        
-                
-        //marcamos el destino como ejecutado
+      
         globalStatusService.updateDstatus(0, iddestino);     
         
-        //Extraemos el idfarmacia que recibe el endpoint
         Integer idfarmacia = idfarm;
-        //creamos un objeto de tipo farmacia
         Farmacias farmacias = new Farmacias();
-        //le aplicamoe el id al objeto
         farmacias.setIdfarmacia(idfarmacia);
         
-        //consultamos el prime registro con el id farmacia y en esatus pendiente, esto para validar si hay alguna otro destino pendiente por ejecutar 
         Optional<Destino> destinoe = destinoService.findFirstByIdFarmaciaAndStatus(farmacias, 1);
         
-        //validamos si hay algun otro destino (ejecucion) pendiente
-        if(destinoe.isPresent()){//si hay algo mas pendiente
+        if(destinoe.isPresent()){
             
             GlobalStatus globalStatus = new GlobalStatus();
-            
-            //estraemos el codigo de la farmacia
             int codigo = destinoe.get().getIdFarmacia().getCodigo();
             
-            //le aplicamos el codigo
             globalStatus.setCodigo(codigo);
-            
-            //consultamos ese global estatus para obtener el objeto 
+             
             globalStatus = globalStatusService.findByCodigo(globalStatus.getCodigo()).orElse(null);
             
-            
-            //creamos la variable integer con el iddestino pendiente
             Integer iddestinop = destinoe.get().getIddestino();
-            //creamos un objeto de tipo destino para aplicarle el id pendiente
             Destino destin = new Destino();
-            //le agregamos el iddespito pendiente al objeto que acabamos de crear
             destin.setIddestino(iddestinop);
             
-            //le aplicamos el iddestino del destino pendiente por ejecutar
             globalStatus.setIdDestino(destin);            
             
-            //actualizamos el iddestino al que esta pendiente
             globalStatusService.save(globalStatus);
             
         }
-        else{//no hay nada mas pendiente
+        else{
             globalStatusService.updateGstatus(0, iddestino);
         }      
         
         return iddestino;
     }
     
-    @GetMapping("/errorejec")//marca como error la ejecucion
+    @GetMapping("/errorejec")
     @PreAuthorize("hasRole('ADMIN')")
     public void errorEjec(Integer iddestino, int idfarm ) {
         
         globalStatusService.updateDstatus(2, iddestino);
         
-        //Extraemos el idfarmacia que recibe el endpoint
+        
         Integer idfarmacia = idfarm;
-        //creamos un objeto de tipo farmacia
         Farmacias farmacias = new Farmacias();
-        //le aplicamoe el id al objeto
         farmacias.setIdfarmacia(idfarmacia);
         
-        //consultamos el prime registro con el id farmacia y en esatus pendiente, esto para validar si hay alguna otro destino pendiente por ejecutar 
         Optional<Destino> destinoe = destinoService.findFirstByIdFarmaciaAndStatus(farmacias, 1);
         
-        //validamos si hay algun otro destino (ejecucion) pendiente
-        if(destinoe.isPresent()){//si hay algo mas pendiente
+        if(destinoe.isPresent()){
             
             GlobalStatus globalStatus = new GlobalStatus();
             
-            //estraemos el codigo de la farmacia
             int codigo = destinoe.get().getIdFarmacia().getCodigo();
             
-            //le aplicamos el codigo
             globalStatus.setCodigo(codigo);
-            
-            //consultamos ese global estatus para obtener el objeto 
+ 
             globalStatus = globalStatusService.findByCodigo(globalStatus.getCodigo()).orElse(null);
-            
-            
-            //creamos la variable integer con el iddestino pendiente
+
             Integer iddestinop = destinoe.get().getIddestino();
-            //creamos un objeto de tipo destino para aplicarle el id pendiente
             Destino destin = new Destino();
-            //le agregamos el iddespito pendiente al objeto que acabamos de crear
             destin.setIddestino(iddestinop);
-            
-            //le aplicamos el iddestino del destino pendiente por ejecutar
-            globalStatus.setIdDestino(destin);            
-            
-            //actualizamos el iddestino al que esta pendiente
+            globalStatus.setIdDestino(destin);
             globalStatusService.save(globalStatus);
             
         }
-        else{//no hay nada mas pendiente
+        else{
             globalStatusService.updateGstatus(0, iddestino);
         } 
     }
     
     
-    //endpoint para validar si esta arriba el api
     @GetMapping("/test")
     public ResponseEntity testapi(){                
         String jsonEnString = "{\"estatus\": \"ok\"}";

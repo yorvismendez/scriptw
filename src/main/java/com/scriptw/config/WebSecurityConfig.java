@@ -30,7 +30,7 @@ import org.springframework.web.filter.CorsFilter;
  * @author USRSIS0173
  */
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true) //esta anotacion es para activar la validacion de los roles en los endpoints
+@EnableMethodSecurity(prePostEnabled = true) 
 public class WebSecurityConfig {
     
     @Autowired
@@ -41,18 +41,17 @@ public class WebSecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    //encoder para las contraseñas
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    //configuraciones generales de seguridad
+   
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/api/globalstatus/test").permitAll() //quitamos la seguridad para el end point para testear el api
-                //.requestMatchers("**").permitAll() //quitamos la seguridad para agregar al usuario inicial, tambien hay que quitar la preautorization en el endpoint
+                .requestMatchers("/api/globalstatus/test").permitAll() 
                 .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))
@@ -62,7 +61,7 @@ public class WebSecurityConfig {
                 .build();
     }
     
-    //esto es para que las aplicaciones clientes se puedan autenticar
+
     @Bean
     CorsConfigurationSource corsConfigurationSource(){
         

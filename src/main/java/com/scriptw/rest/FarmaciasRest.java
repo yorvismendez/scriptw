@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author yorvi
  */
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)//seguridad
-@RequestMapping(path = "/api/farmacias")//Simplifica la ruta de los end points hijos
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(path = "/api/farmacias")
 public class FarmaciasRest {
     
     @Autowired
@@ -37,7 +37,7 @@ public class FarmaciasRest {
     @Autowired
     private GlobalStatusService globalStatusService;
     
-    //ingresar/editar una nueva farmacia
+    
     @PostMapping("/guardarfarm")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity guardarfarm(@RequestBody GuardarfarmRequest guardarfarmRequest){
@@ -47,7 +47,7 @@ public class FarmaciasRest {
         farmacia.setCodigo(guardarfarmRequest.getCodigo());
         farmacia.setNombre(guardarfarmRequest.getNombre());
         farmacia.setStatus(guardarfarmRequest.getStatus());
-        farmacia.setIdfarmacia(guardarfarmRequest.getIdfarmacia());//para editar
+        farmacia.setIdfarmacia(guardarfarmRequest.getIdfarmacia());
         Farmacias farmaciaguardada = farmaciaService.save(farmacia);
         
         GlobalStatus globalStatus = new GlobalStatus();
@@ -55,14 +55,14 @@ public class FarmaciasRest {
         globalStatus.setCodigo(guardarfarmRequest.getCodigo());
         globalStatus.setStatus(0);
         globalStatus.setIdFarmacia(farmaciaguardada);
-        globalStatus.setIdstatus(guardarfarmRequest.getIdstatus());//para editar
+        globalStatus.setIdstatus(guardarfarmRequest.getIdstatus());
         
         globalStatusService.save(globalStatus);
     
         return ResponseEntity.ok(farmaciaguardada);
     }
     
-    //consultar las farmacias
+    
     @GetMapping("/consultar")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consultarfarm(){
@@ -70,14 +70,14 @@ public class FarmaciasRest {
         return ResponseEntity.ok(farmacias);
     }
     
-    //consulta las farmacias activas (estatus 0)
+    
     @GetMapping("/consact")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consultarActivas(){         
         return ResponseEntity.ok(farmaciaService.findByStatus(0));
     }
     
-    //consulta por codigo y estatus activo esto para validar si ya existe una farmacia activa con el mismo codigo
+    
     @GetMapping("/constcod")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consultByIdandstatus(int codigo){             
@@ -85,7 +85,7 @@ public class FarmaciasRest {
     }
     
     
-    //"Elimina" la farmacia y global estatus
+    
     @PostMapping("/deletfarm")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")    
     public ResponseEntity<Farmacias> deleteFarm(@RequestBody GuardarfarmRequest guardarfarmRequest){
@@ -104,7 +104,7 @@ public class FarmaciasRest {
         return ResponseEntity.ok(farmaciaedit);            
     }
     
-    //consulta la farmacia por id
+    
     @GetMapping("/consulid")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")    
     public ResponseEntity<Optional<Farmacias>> consultid(Integer idfarmacia){      

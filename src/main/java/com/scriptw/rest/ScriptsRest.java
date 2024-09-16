@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
  * @author USRSIS0173
  */
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)//seguridad
-@RequestMapping(path = "/api/scripts")//simplifica la ruta
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(path = "/api/scripts")
 public class ScriptsRest {
     
     @Autowired
     private ScriptsService scriptsService;
     
-    //guardar farmacia
+    
     @PostMapping("/guardarscript")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity guardarScript(@RequestBody GuardarScriptRequest guardarScriptRequest){
@@ -52,7 +52,7 @@ public class ScriptsRest {
         return ResponseEntity.ok(script);
     }
     
-    //consultar todos los scripts
+    
     @GetMapping("/consultar")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consultarScripts(){
@@ -62,7 +62,7 @@ public class ScriptsRest {
         return ResponseEntity.ok(scripts);
     }
     
-    //consultar todos los scripts activos
+    
     @GetMapping("/consulacti")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity consultarScriptsAct(){
@@ -72,7 +72,7 @@ public class ScriptsRest {
         return ResponseEntity.ok(scripts);
     }
     
-    //consultar todos los scripts por nivel y estatus
+    
     @GetMapping("/consulniv")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consultarScriptsNiv(int nivel){
@@ -82,7 +82,7 @@ public class ScriptsRest {
         return ResponseEntity.ok(scripts);
     }
     
-    //consultar script por id
+    
     @GetMapping("/conultid")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity consulbyid(Integer idscript){

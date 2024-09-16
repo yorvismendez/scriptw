@@ -19,10 +19,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GuardarUserRequest {
     
-    private Integer iduser;//para editar
+    private Integer iduser;
     private String username;
     private String name;
     private String password;
     private boolean enabled;
-    private boolean admin; //para asignar el rol de admin 
+    private boolean admin; 
 }

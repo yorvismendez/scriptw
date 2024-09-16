@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author USRSIS0173
  */
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)//seguridad
-@RequestMapping(path = "/api/destino")//simplifica la ruta de los end points hijos
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(path = "/api/destino")
 public class DestinoRest {
     
     @Autowired
@@ -36,18 +36,15 @@ public class DestinoRest {
     private GlobalStatusService globalStatusService;
     
     
-    //metodo para ingresar destino
+    
     @PostMapping("/insertardes")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity insertarD(@RequestBody InsertardeRequest insertardeRequest) {
         
         Destino destino = new Destino();        
         
-        //llenamos los objetos con los valores de la clase request
         destino.setIdFarmacia(insertardeRequest.getId_farmacia());
-        //aplicamos el id de la ejecucion recien insertada
         destino.setIdEjecucion(insertardeRequest.getId_ejecucion());
-        //aplicamos el estatus pendiente
         destino.setStatus(1);
         
         Destino destinoguardado = destinoService.save(destino);
@@ -64,7 +61,6 @@ public class DestinoRest {
         return ResponseEntity.ok(destinoguardado);        
     }
         
-    //end point para consultar los destinos por ejecuciones
     @GetMapping("/consultarbyid")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<Destino>> consultarDestino(Destino idEjecucion){        
